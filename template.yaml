@@ -35,4 +35,4 @@ Resources:
           Properties:
             Description: 'Periodically check feedly for unread articles'
             Name: 'feedly-check'
-            Schedule: 'cron(0/5 * * * ? *)'
+            Schedule: 'cron(0 4/5 * * ? *)'
