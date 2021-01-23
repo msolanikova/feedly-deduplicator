@@ -1,0 +1,11 @@
+{
+  "version": "0",
+  "id": "99024381-05e8-dfba-d8a7-35649d55c869",
+  "detail-type": "Scheduled Event",
+  "source": "aws.events",
+  "account": "100350978953",
+  "time": "2021-01-23T15:35:00Z",
+  "region": "eu-west-1",
+  "resources": [ "arn:aws:events:eu-west-1:100350978953:rule/feedly-check" ],
+  "detail": {}
+}

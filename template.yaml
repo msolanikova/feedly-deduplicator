@@ -1,0 +1,23 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Feedly De-duplicator
+
+  Sample SAM Template for feedly de-duplicator that connects to feedly account and marks all duplicated unread articles as read
+
+Resources:
+  FeedlyDeduplicator:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: feedly-deduplicator
+      CodeUri: dist/
+      Handler: index.lambdaHandler
+      Runtime: nodejs12.x
+      MemorySize: 128
+      Events:
+        FeedlyCheckRule:
+          Type: Schedule
+          Properties:
+            Description: 'Periodically check feedly for unread articles'
+            Name: 'feedly-check'
+            Schedule: 'cron(0/5 * * * ? *)'
