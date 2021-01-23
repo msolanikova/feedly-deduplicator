@@ -6,6 +6,13 @@ Description: >
   Sample SAM Template for feedly de-duplicator that connects to feedly account and marks all duplicated unread articles as read
 
 Resources:
+  FeedlyAuth:
+    Type: 'AWS::SecretsManager::Secret'
+    Properties:
+      Name: FeedlyAuth
+      Description: Feedly auth data
+      SecretString: '{"token": "", "user": ""}'
+
   FeedlyDeduplicator:
     Type: AWS::Serverless::Function
     Properties:
@@ -14,6 +21,14 @@ Resources:
       Handler: index.lambdaHandler
       Runtime: nodejs12.x
       MemorySize: 128
+      Timeout: 60
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+              Resource: !Ref FeedlyAuth
       Events:
         FeedlyCheckRule:
           Type: Schedule
