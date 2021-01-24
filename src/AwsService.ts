@@ -55,6 +55,6 @@ export class AwsService {
     };
 
     const sns = new SNS();
-    const snsResponse = await sns.publish(params).promise();
+    await sns.publish(params).promise();
   };
 }
