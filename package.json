@@ -7,7 +7,7 @@
   "scripts": {
     "lint": "eslint src --ext .ts",
     "lint-fix": "eslint src --ext .ts --fix",
-    "dist": "tsc && cp package*.json dist/ && cd dist && npm i --production"
+    "dist": "tsc && cp package*.json dist/ && cd dist && npm ci --production"
   },
   "dependencies": {
     "axios": "^0.21.1",

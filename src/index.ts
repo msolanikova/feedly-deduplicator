@@ -32,17 +32,17 @@ const getDuplicatedArticleIds = async (feedlyService: FeedlyService): Promise<st
     requestCount++;
 
     for (const item of unreadArticles.items) {
-      if (allArticlesUrls.has(item.canonicalUrl)) {
+      if (allArticlesUrls.has(item.originId)) {
         duplicatedArticlesIds.push(item.id);
       } else {
-        allArticlesUrls.add(item.canonicalUrl);
+        allArticlesUrls.add(item.originId);
       }
     }
 
     continuation = unreadArticles.continuation;
 
     if (!continuation) {
-      console.debug(`Finished retrieving all unread articles with ${requestCount} requests`);
+      console.info(`Finished retrieving all unread articles with ${requestCount} requests`);
       allProcessed = true;
     }
   }
@@ -51,7 +51,7 @@ const getDuplicatedArticleIds = async (feedlyService: FeedlyService): Promise<st
     console.warn(`Couldn't retrieve all unread articles due to request limit (${REQUEST_LIMIT}). Executed ${requestCount} requests`);
   }
 
-  console.debug(`Found ${duplicatedArticlesIds.length} duplicated articles`);
+  console.info(`Found ${duplicatedArticlesIds.length} duplicated articles`);
   return duplicatedArticlesIds;
 };
 
