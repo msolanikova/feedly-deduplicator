@@ -1,13 +1,14 @@
 import { ScheduledEvent } from 'aws-lambda';
-import SecretsManager from 'aws-sdk/clients/secretsmanager';
-import { FeedlyAuth } from './FeedlyAuth';
+
 import { FeedlyService } from './FeedlyService';
+import { AwsService } from './AwsService';
 
 const REQUEST_LIMIT = 15;
 
 export const lambdaHandler = async (event: ScheduledEvent): Promise<void> => {
-  const feedlyAuth = await getFeedlyAuth();
-  const feedlyService = new FeedlyService(feedlyAuth);
+  const awsService = new AwsService();
+  const feedlyAuth = await awsService.getFeedlyAuth();
+  const feedlyService = new FeedlyService(feedlyAuth, awsService);
 
   const duplicatedArticleIds = await getDuplicatedArticleIds(feedlyService);
   await feedlyService.markArticlesAsRead(duplicatedArticleIds);
@@ -53,18 +54,4 @@ const getDuplicatedArticleIds = async (feedlyService: FeedlyService): Promise<st
 
   console.info(`Found ${duplicatedArticlesIds.length} duplicated articles`);
   return duplicatedArticlesIds;
-};
-
-/**
- * Returns feedly data for authentication from AWS Secrets Manager
- */
-const getFeedlyAuth = async (): Promise<FeedlyAuth> => {
-  const params = {
-    SecretId: 'FeedlyAuth',
-  };
-  const secretsManager = new SecretsManager();
-  const secretResponse = await secretsManager.getSecretValue(params).promise();
-  const feedlyAuthJson = JSON.parse(secretResponse.SecretString ?? '{}');
-
-  return new FeedlyAuth(feedlyAuthJson['token'], feedlyAuthJson['user']);
 };

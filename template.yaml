@@ -5,13 +5,43 @@ Description: >
 
   Sample SAM Template for feedly de-duplicator that connects to feedly account and marks all duplicated unread articles as read
 
+Parameters:
+  FeedlyAuthSecretStringName:
+    Type: String
+    Default: 'FeedlyAuth'
+    Description: Name of the secret string in AWS Secrets Manager holding feedly auth related data
+  FeedlyCheckRuleName:
+    Type: String
+    Default: 'feedly-check'
+    Description: Name of the EventBridge Rule for periodically running deduplicator Lambda
+  FeedlyCheckRuleSchedule:
+    Type: String
+    Default: 'cron(0 4/5 * * ? *)'
+    Description: Schedule (e.g. cron schedule) for EventBridge Rule of the deduplicator Lambda
+  NotificationSnsTopicName:
+    Type: String
+    Default: 'feedly-deduplicator-notifications'
+    Description: Name of the SNS topic in AWS for notifications about feedly deduplicator failures
+  NotificationEmail:
+    Type: String
+    Description: Email to be subscribed to feedly deduplicator notifications
+
 Resources:
   FeedlyAuth:
     Type: 'AWS::SecretsManager::Secret'
     Properties:
-      Name: FeedlyAuth
+      Name: !Ref FeedlyAuthSecretStringName
       Description: Feedly auth data
       SecretString: '{"token": "", "user": ""}'
+
+  NotificationsSnsTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Ref NotificationSnsTopicName
+      DisplayName: !Ref NotificationSnsTopicName
+      Subscription:
+        - Protocol: email
+          Endpoint: !Ref NotificationEmail
 
   FeedlyDeduplicator:
     Type: AWS::Serverless::Function
@@ -22,6 +52,10 @@ Resources:
       Runtime: nodejs12.x
       MemorySize: 128
       Timeout: 60
+      Environment:
+        Variables:
+          FEEDLY_AUTH_SECRET_NAME: !Ref FeedlyAuthSecretStringName
+          NOTIFICATION_TOPIC_ARN: !Ref NotificationsSnsTopic
       Policies:
         - Version: '2012-10-17'
           Statement:
@@ -29,10 +63,14 @@ Resources:
               Action:
                 - secretsmanager:GetSecretValue
               Resource: !Ref FeedlyAuth
+            - Effect: Allow
+              Action:
+                - sns:Publish
+              Resource: !Ref NotificationsSnsTopic
       Events:
         FeedlyCheckRule:
           Type: Schedule
           Properties:
             Description: 'Periodically check feedly for unread articles'
-            Name: 'feedly-check'
-            Schedule: 'cron(0 4/5 * * ? *)'
+            Name: !Ref FeedlyCheckRuleName
+            Schedule: !Ref FeedlyCheckRuleSchedule

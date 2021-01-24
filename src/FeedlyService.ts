@@ -1,8 +1,9 @@
 import { FeedlyAuth } from './FeedlyAuth';
 import axios, { AxiosResponse } from 'axios';
+import { AwsService } from './AwsService';
 
 export class FeedlyService {
-  constructor(readonly feedlyAuth: FeedlyAuth) {
+  constructor(readonly feedlyAuth: FeedlyAuth, readonly awsService: AwsService) {
     axios.defaults.baseURL = 'https://cloud.feedly.com';
     axios.defaults.headers.common['Authorization'] = `OAuth ${this.feedlyAuth.token}`;
   }
@@ -25,8 +26,17 @@ export class FeedlyService {
     } catch (err) {
       console.error(`Couldn't retrieve unread articles. Response status: ${err.response.status}`);
       this.logRateLimits(err.response, 'warn');
-      // todo: check if token expired (401) - send sns message
-      // todo: check if rate limit exceeded (429) - send sns message
+      switch (err.response.status) {
+        case 401:
+          await this.awsService.sendTokenExpirationMessage(JSON.stringify(err.response.data, null, 2));
+          break;
+        case 429:
+          await this.awsService.sendLimitReachedMessage(JSON.stringify(err.response.data, null, 2));
+          break;
+        default:
+          await this.awsService.sendGenericErrorMessage(JSON.stringify(err.response.data, null, 2));
+          break;
+      }
       throw new Error(err.message);
     }
 
@@ -57,6 +67,7 @@ export class FeedlyService {
     } catch (err) {
       console.error(`Couldn't mark articles as read. Response status: ${err.response.status}`);
       this.logRateLimits(err.response, 'warn');
+      await this.awsService.sendGenericErrorMessage(JSON.stringify(err.response.data, null, 2));
       throw new Error(err.message);
     }
   };
