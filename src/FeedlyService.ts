@@ -1,6 +1,9 @@
-import { FeedlyAuth } from './FeedlyAuth';
+import { FeedlyAuth } from './models/FeedlyAuth';
 import axios, { AxiosResponse } from 'axios';
 import { AwsService } from './AwsService';
+import { FeedlyResponse } from './models/FeedlyResponse';
+
+const PAGE_SIZE = 300;
 
 export class FeedlyService {
   constructor(readonly feedlyAuth: FeedlyAuth, readonly awsService: AwsService) {
@@ -12,7 +15,7 @@ export class FeedlyService {
    * Get all unread articles for given continuation (pagination)
    * @param continuation
    */
-  getUnreadArticles = async (continuation: string): Promise<any> => {
+  getUnreadArticles = async (continuation: string): Promise<FeedlyResponse> => {
     let unreadArticlesResponse;
     try {
       unreadArticlesResponse = await axios.get(`/v3/streams/contents`, {
@@ -20,6 +23,7 @@ export class FeedlyService {
           streamId: `user/${this.feedlyAuth.user}/category/global.all`,
           unreadOnly: 'true',
           continuation: continuation,
+          count: PAGE_SIZE,
         },
       });
       this.logRateLimits(unreadArticlesResponse);

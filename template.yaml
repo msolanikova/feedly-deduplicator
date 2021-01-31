@@ -16,7 +16,7 @@ Parameters:
     Description: Name of the EventBridge Rule for periodically running deduplicator Lambda
   FeedlyCheckRuleSchedule:
     Type: String
-    Default: 'cron(0 4/5 * * ? *)'
+    Default: 'cron(0 4/2 * * ? *)'
     Description: Schedule (e.g. cron schedule) for EventBridge Rule of the deduplicator Lambda
   NotificationSnsTopicName:
     Type: String

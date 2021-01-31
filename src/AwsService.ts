@@ -1,4 +1,4 @@
-import { FeedlyAuth } from './FeedlyAuth';
+import { FeedlyAuth } from './models/FeedlyAuth';
 import SecretsManager from 'aws-sdk/clients/secretsmanager';
 import SNS from 'aws-sdk/clients/sns';
 

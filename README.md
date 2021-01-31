@@ -17,7 +17,8 @@ Uniqueness of the article is checked ONLY by its URL (no content checking) using
   * (mandatory) `NotificationEmail` - email for notifications about errors 
   * (optional) `FeedlyAuthSecretStringName` - name of the secret string holding feedly auth data. Default: `FeedlyAuth`
   * (optional) `FeedlyCheckRuleName` - name of the event rule for periodically triggering the de-duplicator. Default: `feedly-check`
-  * (optional) `FeedlyCheckRuleSchedule` - the schedule of de-duplicator. Default: `cron(0 4/5 * * ? *)` (every 5 hours starting at 4am UTC)
+  * (optional) `FeedlyCheckRuleSchedule` - the schedule of de-duplicator. Default: `cron(0 4/2 * * ? *)` (every 2 hours starting at 4am UTC)
+    * watch out! there are spaces in cron schedule and you may need to escape them. Also in such case you may use cloudformation format for parameter overrides E.g. `--parameter-overrides ParameterKey=FeedlyCheckRuleSchedule,ParameterValue="cron(0\ 4/2\ *\ *\ ?\ *)"`
   * (optional) `NotificationSnsTopicName` - name of the notifications SNS topic. Default: `feedly-deduplicator-notifications`
 
 ## Run Lambda function locally
