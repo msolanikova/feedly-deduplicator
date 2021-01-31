@@ -1,7 +1,9 @@
-export class FeedlyResponse {
-  constructor(readonly continuation: string, readonly items: FeedlyItem[]) {}
+export interface FeedlyResponse {
+  readonly items: FeedlyItem[];
+  readonly continuation?: string;
 }
 
-export class FeedlyItem {
-  constructor(readonly id: string, readonly originId: string) {}
+export interface FeedlyItem {
+  readonly id: string;
+  readonly originId: string;
 }

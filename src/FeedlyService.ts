@@ -1,24 +1,26 @@
 import { FeedlyAuth } from './models/FeedlyAuth';
 import axios, { AxiosResponse } from 'axios';
-import { AwsService } from './AwsService';
 import { FeedlyResponse } from './models/FeedlyResponse';
+import { sendGenericErrorMessage, sendLimitReachedMessage, sendTokenExpirationMessage } from './AwsService';
 
 const PAGE_SIZE = 300;
+export const feedlyClient = axios.create();
 
 export class FeedlyService {
-  constructor(readonly feedlyAuth: FeedlyAuth, readonly awsService: AwsService) {
-    axios.defaults.baseURL = 'https://cloud.feedly.com';
-    axios.defaults.headers.common['Authorization'] = `OAuth ${this.feedlyAuth.token}`;
+  constructor(readonly feedlyAuth: FeedlyAuth) {
+    feedlyClient.defaults.baseURL = 'https://cloud.feedly.com';
+    feedlyClient.defaults.headers.common['Authorization'] = `OAuth ${this.feedlyAuth.token}`;
+    feedlyClient.defaults.timeout = 10_000;
   }
 
   /**
    * Get all unread articles for given continuation (pagination)
    * @param continuation
    */
-  getUnreadArticles = async (continuation: string): Promise<FeedlyResponse> => {
+  getUnreadArticles = async (continuation?: string): Promise<FeedlyResponse> => {
     let unreadArticlesResponse;
     try {
-      unreadArticlesResponse = await axios.get(`/v3/streams/contents`, {
+      unreadArticlesResponse = await feedlyClient.get(`/v3/streams/contents`, {
         params: {
           streamId: `user/${this.feedlyAuth.user}/category/global.all`,
           unreadOnly: 'true',
@@ -28,17 +30,22 @@ export class FeedlyService {
       });
       this.logRateLimits(unreadArticlesResponse);
     } catch (err) {
-      console.error(`Couldn't retrieve unread articles. Response status: ${err.response.status}`);
-      this.logRateLimits(err.response, 'warn');
-      switch (err.response.status) {
+      if (!err.response) {
+        await sendGenericErrorMessage(err.message ?? 'Unknown error occurred');
+        throw err;
+      }
+
+      console.error(`Couldn't retrieve unread articles. Response status: ${err.response?.status}`);
+      this.logRateLimits(err?.response, 'warn');
+      switch (err?.response?.status ?? 0) {
         case 401:
-          await this.awsService.sendTokenExpirationMessage(JSON.stringify(err.response.data, null, 2));
+          await sendTokenExpirationMessage(JSON.stringify(err.response?.data, null, 2) ?? 'unknown error');
           break;
         case 429:
-          await this.awsService.sendLimitReachedMessage(JSON.stringify(err.response.data, null, 2));
+          await sendLimitReachedMessage(JSON.stringify(err.response?.data, null, 2) ?? 'unknown error');
           break;
         default:
-          await this.awsService.sendGenericErrorMessage(JSON.stringify(err.response.data, null, 2));
+          await sendGenericErrorMessage(JSON.stringify(err.response?.data, null, 2) ?? 'unknown error');
           break;
       }
       throw new Error(err.message);
@@ -63,7 +70,7 @@ export class FeedlyService {
     };
 
     try {
-      const markersResponse = await axios.post(`/v3/markers`, requestBody);
+      const markersResponse = await feedlyClient.post(`/v3/markers`, requestBody);
 
       this.logRateLimits(markersResponse);
 
@@ -71,15 +78,15 @@ export class FeedlyService {
     } catch (err) {
       console.error(`Couldn't mark articles as read. Response status: ${err.response.status}`);
       this.logRateLimits(err.response, 'warn');
-      await this.awsService.sendGenericErrorMessage(JSON.stringify(err.response.data, null, 2));
+      await sendGenericErrorMessage(JSON.stringify(err.response.data, null, 2));
       throw new Error(err.message);
     }
   };
 
   private logRateLimits = (response: AxiosResponse, level?: string): void => {
-    const limitMessage = `X-RateLimit-Limit: ${response.headers['x-ratelimit-limit']}`;
-    const countMessage = `X-RateLimit-Count: ${response.headers['x-ratelimit-count']}`;
-    const resetMessage = `X-RateLimit-Reset: ${response.headers['x-ratelimit-reset']}`;
+    const limitMessage = `X-RateLimit-Limit: ${response?.headers['x-ratelimit-limit']}`;
+    const countMessage = `X-RateLimit-Count: ${response?.headers['x-ratelimit-count']}`;
+    const resetMessage = `X-RateLimit-Reset: ${response?.headers['x-ratelimit-reset']}`;
 
     switch (level) {
       case undefined:

@@ -1,14 +1,14 @@
 import { ScheduledEvent } from 'aws-lambda';
 
 import { FeedlyService } from './FeedlyService';
-import { AwsService } from './AwsService';
+import { FeedlyResponse } from './models/FeedlyResponse';
+import { getFeedlyAuth } from './AwsService';
 
 const REQUEST_LIMIT = 15;
 
 export const lambdaHandler = async (event: ScheduledEvent): Promise<void> => {
-  const awsService = new AwsService();
-  const feedlyAuth = await awsService.getFeedlyAuth();
-  const feedlyService = new FeedlyService(feedlyAuth, awsService);
+  const feedlyAuth = await getFeedlyAuth();
+  const feedlyService = new FeedlyService(feedlyAuth);
 
   const duplicatedArticleIds = await getDuplicatedArticleIds(feedlyService);
   await feedlyService.markArticlesAsRead(duplicatedArticleIds);
@@ -22,14 +22,14 @@ const getDuplicatedArticleIds = async (feedlyService: FeedlyService): Promise<st
   const duplicatedArticlesIds: string[] = [];
   const allArticlesUrls: Set<string> = new Set();
 
-  let continuation = '';
+  let continuation;
   let allProcessed = false;
   let requestCount = 0;
 
   while (!allProcessed && requestCount < REQUEST_LIMIT) {
     console.debug(`Request number: ${requestCount}`);
 
-    const unreadArticles = await feedlyService.getUnreadArticles(continuation);
+    const unreadArticles: FeedlyResponse = await feedlyService.getUnreadArticles(continuation);
     requestCount++;
 
     for (const item of unreadArticles.items) {
