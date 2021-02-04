@@ -32,6 +32,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
         
       - name: Run unit tests
+        run: npm i
         run: npm test
       
       - name: Prepare for distribution
