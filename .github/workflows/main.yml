@@ -32,10 +32,10 @@ jobs:
           node-version: ${{ matrix.node-version }}
         
       - name: Run unit tests
-      - run: npm test
+        run: npm test
       
       - name: Prepare for distribution
-      - run: npm run dist
+        run: npm run dist
   
       # Runs a single command using the runners shell
       - name: Prepare for deploy
