@@ -30,24 +30,9 @@ export class FeedlyService {
       });
       this.logRateLimits(unreadArticlesResponse);
     } catch (err) {
-      if (!err.response) {
-        await sendGenericErrorMessage(err.message ?? 'Unknown error occurred');
-        throw err;
-      }
-
       console.error(`Couldn't retrieve unread articles. Response status: ${err.response?.status}`);
-      this.logRateLimits(err?.response, 'warn');
-      switch (err?.response?.status ?? 0) {
-        case 401:
-          await sendTokenExpirationMessage(JSON.stringify(err.response?.data, null, 2) ?? 'unknown error');
-          break;
-        case 429:
-          await sendLimitReachedMessage(JSON.stringify(err.response?.data, null, 2) ?? 'unknown error');
-          break;
-        default:
-          await sendGenericErrorMessage(JSON.stringify(err.response?.data, null, 2) ?? 'unknown error');
-          break;
-      }
+      await this.handleErrorStatuses(err);
+
       throw new Error(err.message);
     }
 
@@ -72,39 +57,44 @@ export class FeedlyService {
     try {
       const markersResponse = await feedlyClient.post(`/v3/markers`, requestBody);
 
-      this.logRateLimits(markersResponse);
-
       console.info(`All ${articleIds.length} articles were marked as read`);
+      this.logRateLimits(markersResponse);
     } catch (err) {
-      console.error(`Couldn't mark articles as read. Response status: ${err.response.status}`);
-      this.logRateLimits(err.response, 'warn');
-      await sendGenericErrorMessage(JSON.stringify(err.response.data, null, 2));
+      console.error(`Couldn't mark articles as read. Response status: ${err.response?.status}`);
+      await this.handleErrorStatuses(err);
+
       throw new Error(err.message);
     }
   };
 
-  private logRateLimits = (response: AxiosResponse, level?: string): void => {
+  private handleErrorStatuses = async (err: any): Promise<void> => {
+    if (!err.response) {
+      await sendGenericErrorMessage(err.message ?? 'Unknown error occurred');
+      throw err;
+    }
+
+    this.logRateLimits(err?.response);
+
+    switch (err?.response?.status ?? 0) {
+      case 401:
+        await sendTokenExpirationMessage(JSON.stringify(err.response?.data, null, 2) ?? 'unknown error');
+        break;
+      case 429:
+        await sendLimitReachedMessage(JSON.stringify(err.response?.data, null, 2) ?? 'unknown error');
+        break;
+      default:
+        await sendGenericErrorMessage(JSON.stringify(err.response?.data, null, 2) ?? 'unknown error');
+        break;
+    }
+  };
+
+  private logRateLimits = (response: AxiosResponse): void => {
     const limitMessage = `X-RateLimit-Limit: ${response?.headers['x-ratelimit-limit']}`;
     const countMessage = `X-RateLimit-Count: ${response?.headers['x-ratelimit-count']}`;
     const resetMessage = `X-RateLimit-Reset: ${response?.headers['x-ratelimit-reset']}`;
 
-    switch (level) {
-      case undefined:
-      case 'debug':
-        console.debug(limitMessage);
-        console.debug(countMessage);
-        console.debug(resetMessage);
-        break;
-      case 'info':
-        console.info(limitMessage);
-        console.info(countMessage);
-        console.info(resetMessage);
-        break;
-      default:
-        console.warn(limitMessage);
-        console.warn(countMessage);
-        console.warn(resetMessage);
-        break;
-    }
+    console.debug(limitMessage);
+    console.debug(countMessage);
+    console.debug(resetMessage);
   };
 }

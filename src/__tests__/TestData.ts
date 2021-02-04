@@ -26,3 +26,6 @@ export const ERROR_RESPONSE = (status: number) => ({
     status: status,
   },
 });
+
+export const ARTICLE_IDS = ['id1', 'id2', 'id3'];
+export const NO_ARTICLE_IDS = [];
