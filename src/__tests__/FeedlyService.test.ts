@@ -5,7 +5,7 @@ import * as AwsService from '../AwsService';
 import {
   ARTICLE_IDS,
   ERROR_RESPONSE,
-  FEEDLY_OK_SINGLE_ITEM_RESPONSE,
+  FEEDLY_RESPONSE_OK_SINGLE_ITEM,
   FEEDLY_RATE_LIMIT_OK_HEADERS,
   FEEDLY_RATE_LIMIT_REACHED_HEADERS,
   NO_ARTICLE_IDS,
@@ -24,10 +24,10 @@ describe('FeedlyService', () => {
 
   describe('getUnreadArticles', () => {
     it('should return same response as feedly', async () => {
-      axiosMock.onGet('/v3/streams/contents').reply(200, FEEDLY_OK_SINGLE_ITEM_RESPONSE, FEEDLY_RATE_LIMIT_OK_HEADERS);
+      axiosMock.onGet('/v3/streams/contents').reply(200, FEEDLY_RESPONSE_OK_SINGLE_ITEM, FEEDLY_RATE_LIMIT_OK_HEADERS);
 
       const response = await service.getUnreadArticles();
-      expect(response).toEqual(FEEDLY_OK_SINGLE_ITEM_RESPONSE);
+      expect(response).toEqual(FEEDLY_RESPONSE_OK_SINGLE_ITEM);
 
       expect(awsServiceMock.sendTokenExpirationMessage).toBeCalledTimes(0);
       expect(awsServiceMock.sendLimitReachedMessage).toBeCalledTimes(0);

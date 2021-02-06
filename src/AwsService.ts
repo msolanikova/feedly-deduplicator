@@ -1,16 +1,16 @@
 import { FeedlyAuth } from './models/FeedlyAuth';
-import SecretsManager from 'aws-sdk/clients/secretsmanager';
-import SNS from 'aws-sdk/clients/sns';
+import { GetSecretValueCommand, GetSecretValueCommandOutput, SecretsManagerClient } from '@aws-sdk/client-secrets-manager';
+import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
 
 /**
  * Returns feedly data for authentication from AWS Secrets Manager
  */
 export const getFeedlyAuth = async (): Promise<FeedlyAuth> => {
-  const params = {
+  const secretsManager = new SecretsManagerClient({});
+  const command = new GetSecretValueCommand({
     SecretId: process.env.FEEDLY_AUTH_SECRET_NAME ?? '',
-  };
-  const secretsManager = new SecretsManager();
-  const secretResponse = await secretsManager.getSecretValue(params).promise();
+  });
+  const secretResponse = (await secretsManager.send(command)) as GetSecretValueCommandOutput;
   const feedlyAuthJson = JSON.parse(secretResponse.SecretString ?? '{}');
 
   return new FeedlyAuth(feedlyAuthJson['token'], feedlyAuthJson['user']);
@@ -53,6 +53,7 @@ const sendSnsMessage = async (message: string, subject: string): Promise<void> =
     TopicArn: process.env.NOTIFICATION_TOPIC_ARN ?? '',
   };
 
-  const sns = new SNS();
-  await sns.publish(params).promise();
+  const sns = new SNSClient({});
+  const command = new PublishCommand(params);
+  await sns.send(command);
 };

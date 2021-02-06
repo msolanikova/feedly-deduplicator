@@ -6,7 +6,7 @@ import { getFeedlyAuth } from './AwsService';
 
 const REQUEST_LIMIT = 15;
 
-export const lambdaHandler = async (event: ScheduledEvent): Promise<void> => {
+export const lambdaHandler = async (): Promise<void> => {
   const feedlyAuth = await getFeedlyAuth();
   const feedlyService = new FeedlyService(feedlyAuth);
 

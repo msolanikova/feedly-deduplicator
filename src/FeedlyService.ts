@@ -17,7 +17,7 @@ export class FeedlyService {
    * Get all unread articles for given continuation (pagination)
    * @param continuation
    */
-  getUnreadArticles = async (continuation?: string): Promise<FeedlyResponse> => {
+  async getUnreadArticles(continuation?: string): Promise<FeedlyResponse> {
     let unreadArticlesResponse;
     try {
       unreadArticlesResponse = await feedlyClient.get(`/v3/streams/contents`, {
@@ -37,13 +37,13 @@ export class FeedlyService {
     }
 
     return unreadArticlesResponse.data;
-  };
+  }
 
   /**
    * Mark all articles with given ids as read
    * @param articleIds
    */
-  markArticlesAsRead = async (articleIds: string[]): Promise<void> => {
+  async markArticlesAsRead(articleIds: string[]): Promise<void> {
     if (articleIds.length == 0) {
       return;
     }
@@ -65,7 +65,7 @@ export class FeedlyService {
 
       throw new Error(err.message);
     }
-  };
+  }
 
   private handleErrorStatuses = async (err: any): Promise<void> => {
     if (!err.response) {
