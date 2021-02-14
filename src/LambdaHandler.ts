@@ -1,10 +1,10 @@
-import { ScheduledEvent } from 'aws-lambda';
-
 import { FeedlyService } from './FeedlyService';
 import { FeedlyResponse } from './models/FeedlyResponse';
 import { getFeedlyAuth } from './AwsService';
+import { logger } from './LoggingUtils';
 
-const REQUEST_LIMIT = 15;
+const REQUEST_LIMIT = process.env.FEEDLY_REQUEST_LIMIT ?? 15;
+const log = logger(__filename);
 
 export const lambdaHandler = async (): Promise<void> => {
   const feedlyAuth = await getFeedlyAuth();
@@ -27,7 +27,7 @@ const getDuplicatedArticleIds = async (feedlyService: FeedlyService): Promise<st
   let requestCount = 0;
 
   while (!allProcessed && requestCount < REQUEST_LIMIT) {
-    console.debug(`Request number: ${requestCount}`);
+    log.debug(`Request number: ${requestCount}`);
 
     const unreadArticles: FeedlyResponse = await feedlyService.getUnreadArticles(continuation);
     requestCount++;
@@ -43,15 +43,15 @@ const getDuplicatedArticleIds = async (feedlyService: FeedlyService): Promise<st
     continuation = unreadArticles.continuation;
 
     if (!continuation) {
-      console.info(`Finished retrieving all unread articles with ${requestCount} requests`);
+      log.info(`Finished retrieving all unread articles with ${requestCount} requests`);
       allProcessed = true;
     }
   }
 
   if (requestCount >= REQUEST_LIMIT) {
-    console.warn(`Couldn't retrieve all unread articles due to request limit (${REQUEST_LIMIT}). Executed ${requestCount} requests`);
+    log.warn(`Couldn't retrieve all unread articles due to request limit (${REQUEST_LIMIT}). Executed ${requestCount} requests`);
   }
 
-  console.info(`Found ${duplicatedArticlesIds.length} duplicated articles`);
+  log.info(`Found ${duplicatedArticlesIds.length} duplicated articles`);
   return duplicatedArticlesIds;
 };

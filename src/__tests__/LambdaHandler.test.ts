@@ -15,7 +15,7 @@ jest.mock('../FeedlyService');
 const awsServiceMock = AwsService as jest.Mocked<typeof AwsService>;
 const feedlyServiceMock = FeedlyService as jest.MockedClass<typeof FeedlyService>;
 
-describe('index', () => {
+describe('LambdaHandler', () => {
   beforeEach(() => {
     jest.resetAllMocks();
   });

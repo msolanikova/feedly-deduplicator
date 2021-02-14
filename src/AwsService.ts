@@ -1,6 +1,9 @@
 import { FeedlyAuth } from './models/FeedlyAuth';
 import { GetSecretValueCommand, GetSecretValueCommandOutput, SecretsManagerClient } from '@aws-sdk/client-secrets-manager';
 import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
+import { logger } from './LoggingUtils';
+
+const log = logger(__filename);
 
 /**
  * Returns feedly data for authentication from AWS Secrets Manager
@@ -56,4 +59,5 @@ const sendSnsMessage = async (message: string, subject: string): Promise<void> =
   const sns = new SNSClient({});
   const command = new PublishCommand(params);
   await sns.send(command);
+  log.debug(`Message with subject [${subject}] was sent`);
 };

@@ -2,9 +2,11 @@ import { FeedlyAuth } from './models/FeedlyAuth';
 import axios, { AxiosResponse } from 'axios';
 import { FeedlyResponse } from './models/FeedlyResponse';
 import { sendGenericErrorMessage, sendLimitReachedMessage, sendTokenExpirationMessage } from './AwsService';
+import { logger } from './LoggingUtils';
 
 const PAGE_SIZE = 300;
 export const feedlyClient = axios.create();
+const log = logger(__filename);
 
 export class FeedlyService {
   constructor(readonly feedlyAuth: FeedlyAuth) {
@@ -30,7 +32,7 @@ export class FeedlyService {
       });
       this.logRateLimits(unreadArticlesResponse);
     } catch (err) {
-      console.error(`Couldn't retrieve unread articles. Response status: ${err.response?.status}`);
+      log.error(`Couldn't retrieve unread articles. Response status: ${err.response?.status}`);
       await this.handleErrorStatuses(err);
 
       throw new Error(err.message);
@@ -57,10 +59,10 @@ export class FeedlyService {
     try {
       const markersResponse = await feedlyClient.post(`/v3/markers`, requestBody);
 
-      console.info(`All ${articleIds.length} articles were marked as read`);
+      log.info(`All ${articleIds.length} articles were marked as read`);
       this.logRateLimits(markersResponse);
     } catch (err) {
-      console.error(`Couldn't mark articles as read. Response status: ${err.response?.status}`);
+      log.error(`Couldn't mark articles as read. Response status: ${err.response?.status}`);
       await this.handleErrorStatuses(err);
 
       throw new Error(err.message);
@@ -93,8 +95,8 @@ export class FeedlyService {
     const countMessage = `X-RateLimit-Count: ${response?.headers['x-ratelimit-count']}`;
     const resetMessage = `X-RateLimit-Reset: ${response?.headers['x-ratelimit-reset']}`;
 
-    console.debug(limitMessage);
-    console.debug(countMessage);
-    console.debug(resetMessage);
+    log.debug(limitMessage);
+    log.debug(countMessage);
+    log.debug(resetMessage);
   };
 }
