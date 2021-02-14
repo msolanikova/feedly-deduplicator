@@ -75,7 +75,7 @@ export class FeedlyService {
       throw err;
     }
 
-    this.logRateLimits(err?.response);
+    this.logRateLimits(err?.response, true);
 
     switch (err?.response?.status ?? 0) {
       case 401:
@@ -90,13 +90,19 @@ export class FeedlyService {
     }
   };
 
-  private logRateLimits = (response: AxiosResponse): void => {
+  private logRateLimits = (response: AxiosResponse, isError: boolean = false): void => {
     const limitMessage = `X-RateLimit-Limit: ${response?.headers['x-ratelimit-limit']}`;
     const countMessage = `X-RateLimit-Count: ${response?.headers['x-ratelimit-count']}`;
     const resetMessage = `X-RateLimit-Reset: ${response?.headers['x-ratelimit-reset']}`;
 
-    log.debug(limitMessage);
-    log.debug(countMessage);
-    log.debug(resetMessage);
+    if (isError) {
+      log.warn(limitMessage);
+      log.warn(countMessage);
+      log.warn(resetMessage);
+    } else {
+      log.debug(limitMessage);
+      log.debug(countMessage);
+      log.debug(resetMessage);
+    }
   };
 }
