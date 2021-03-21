@@ -2,12 +2,10 @@
 
 name: CI
 
-# Controls when the action will run. 
+# Controls when the action will run.
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
-    branches: [ main ]
-  pull_request:
     branches: [ main ]
 
   # Allows you to run this workflow manually from the Actions tab
@@ -30,13 +28,13 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-        
+
       - name: Run unit tests
         run: npm i && npm test
-      
+
       - name: Prepare for distribution
         run: npm run dist
-  
+
       # Runs a single command using the runners shell
       - name: Prepare for deploy
         uses: tkt-actions/aws-sam-cli@v1
@@ -44,16 +42,16 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-        with: 
+        with:
           cmd: sam build
-      
+
       - name: Deploy
         uses: tkt-actions/aws-sam-cli@v1
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-        with: 
+        with:
           cmd: sam deploy --no-fail-on-empty-changeset
 
       - name: Integration test - invoke lambda
