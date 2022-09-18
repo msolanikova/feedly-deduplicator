@@ -45,6 +45,6 @@ Feedly-deduplicator can be deployed to an AWS as AWS Lambda scheduled via CloudW
 
 ### Run Lambda function locally
 * set necessary environment variables (`NOTIFICATION_TOPIC_ARN`, `FEEDLY_AUTH_SECRET_NAME`)
-* `tsc` compiles .ts
+* `npm run dist` compiles .ts and copies everything necessary to dist folder
 * `sam build` prepares the package
-* `sam local invoke -e events/events.json` invokes function configured in [`template.yaml`](template.yaml) using [event file](events/event.json). This requires docker service to be running. 
+* `sam local invoke -e events/event.json` invokes function configured in [`template.yaml`](template.yaml) using [event file](events/event.json). This requires docker service to be running. 

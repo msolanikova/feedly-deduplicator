@@ -31,7 +31,7 @@ export class FeedlyService {
         },
       });
       this.logRateLimits(unreadArticlesResponse);
-    } catch (err) {
+    } catch (err: any) {
       log.error(`Couldn't retrieve unread articles. Response status: ${err.response?.status}`);
       await this.handleErrorStatuses(err);
 
@@ -61,7 +61,7 @@ export class FeedlyService {
 
       log.info(`All ${articleIds.length} articles were marked as read`);
       this.logRateLimits(markersResponse);
-    } catch (err) {
+    } catch (err: any) {
       log.error(`Couldn't mark articles as read. Response status: ${err.response?.status}`);
       await this.handleErrorStatuses(err);
 
