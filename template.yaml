@@ -76,8 +76,8 @@ Resources:
                 - ssm:GetParameters
                 - ssm:GetParameter
               Resource:
-                - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${FeedlyTokenParamName}'
-                - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/${FeedlyUserParamName}'
+                - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${FeedlyTokenParamName}'
+                - !Sub 'arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter${FeedlyUserParamName}'
             - Effect: Allow
               Action:
                 - sns:Publish
