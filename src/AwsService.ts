@@ -13,13 +13,11 @@ export const getFeedlyAuth = async (): Promise<FeedlyAuth> => {
   const tokenResponse = (await ssmClient.send(
     new GetParameterCommand({
       Name: process.env.FEEDLY_TOKEN_PARAM_NAME ?? '',
-      WithDecryption: true,
     })
   )) as GetParameterCommandOutput;
   const userResponse = (await ssmClient.send(
     new GetParameterCommand({
       Name: process.env.FEEDLY_USER_PARAM_NAME ?? '',
-      WithDecryption: true,
     })
   )) as GetParameterCommandOutput;
 

@@ -35,13 +35,13 @@ Resources:
     Type: AWS::SSM::Parameter
     Properties:
       Name: !Ref FeedlyTokenParamName
-      Type: 'SecureString'
+      Type: 'String'
       Value: '<feedly token placeholder'
   FeedlyUser:
     Type: AWS::SSM::Parameter
     Properties:
       Name: !Ref FeedlyUserParamName
-      Type: 'SecureString'
+      Type: 'String'
       Value: '<feedly user placeholder'
 
   NotificationsSnsTopic:
