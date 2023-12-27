@@ -6,10 +6,14 @@ Description: >
   Sample SAM Template for feedly de-duplicator that connects to feedly account and marks all duplicated unread articles as read
 
 Parameters:
-  FeedlyAuthSecretStringName:
+  FeedlyTokenParamName:
     Type: String
-    Default: 'FeedlyAuth'
-    Description: Name of the secret string in AWS Secrets Manager holding feedly auth related data
+    Default: 'feedly/token'
+    Description: Name of the ssm parameter holding feedly token
+  FeedlyUserParamName:
+    Type: String
+    Default: 'feedly/user'
+    Description: Name of the ssm parameter holding feedly user
   FeedlyCheckRuleName:
     Type: String
     Default: 'feedly-check'
@@ -27,12 +31,18 @@ Parameters:
     Description: Email to be subscribed to feedly deduplicator notifications
 
 Resources:
-  FeedlyAuth:
-    Type: 'AWS::SecretsManager::Secret'
+  FeedlyToken:
+    Type: AWS::SSM::Parameter
     Properties:
-      Name: !Ref FeedlyAuthSecretStringName
-      Description: Feedly auth data
-      SecretString: '{"token": "", "user": ""}'
+      Name: !Ref FeedlyTokenParamName
+      Type: 'SecureString'
+      Value: '<feedly token placeholder'
+  FeedlyUser:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Ref FeedlyUserParamName
+      Type: 'SecureString'
+      Value: '<feedly user placeholder'
 
   NotificationsSnsTopic:
     Type: AWS::SNS::Topic
@@ -49,21 +59,25 @@ Resources:
       FunctionName: feedly-deduplicator
       CodeUri: dist/
       Handler: LambdaHandler.lambdaHandler
-      Runtime: nodejs14.x
+      Runtime: nodejs18.x
       MemorySize: 128
       Timeout: 60
       Environment:
         Variables:
-          FEEDLY_AUTH_SECRET_NAME: !Ref FeedlyAuthSecretStringName
           NOTIFICATION_TOPIC_ARN: !Ref NotificationsSnsTopic
           LOG_LEVEL: 'info'
+          FEEDLY_TOKEN_PARAM_NAME: !Ref FeedlyToken
+          FEEDLY_USER_PARAM_NAME: !Ref FeedlyUser
       Policies:
         - Version: '2012-10-17'
           Statement:
             - Effect: Allow
               Action:
-                - secretsmanager:GetSecretValue
-              Resource: !Ref FeedlyAuth
+                - ssm:GetParameters
+                - ssm:GetParameter
+              Resource:
+                - !Ref FeedlyToken
+                - !Ref FeedlyUser
             - Effect: Allow
               Action:
                 - sns:Publish

@@ -1,11 +1,10 @@
-import { SecretsManagerClient } from '@aws-sdk/client-secrets-manager';
+import { GetParameterCommandOutput, SSMClient } from '@aws-sdk/client-ssm';
 import { getFeedlyAuth, sendGenericErrorMessage, sendLimitReachedMessage, sendTokenExpirationMessage } from '../AwsService';
-import { SECRET_MANAGER_RESPONSE, TOKEN, USER } from './TestData';
 import { SNSClient } from '@aws-sdk/client-sns';
 
-jest.mock('@aws-sdk/client-secrets-manager');
+jest.mock('@aws-sdk/client-ssm');
 jest.mock('@aws-sdk/client-sns');
-const secretsManager = SecretsManagerClient as jest.MockedClass<typeof SecretsManagerClient>;
+const ssmClient = SSMClient as jest.MockedClass<typeof SSMClient>;
 const sns = SNSClient as jest.MockedClass<typeof SNSClient>;
 
 describe('AwsService', () => {
@@ -15,17 +14,18 @@ describe('AwsService', () => {
 
   describe('getFeedlyAuth', () => {
     it('should return proper FeedlyAuth if secret value is found', async () => {
-      secretsManager.prototype.send.mockImplementation(() => Promise.resolve(SECRET_MANAGER_RESPONSE));
+      const mockOutput = { Parameter: { Value: 'testParam' } } as GetParameterCommandOutput;
+      ssmClient.prototype.send.mockImplementation(() => mockOutput);
 
       const feedlyAuth = await getFeedlyAuth();
 
       expect(feedlyAuth).toBeTruthy();
-      expect(feedlyAuth['user']).toMatch(USER);
-      expect(feedlyAuth['token']).toMatch(TOKEN);
+      expect(feedlyAuth['user']).toMatch('testParam');
+      expect(feedlyAuth['token']).toMatch('testParam');
     });
 
     it('should throw error if secret value is not found', async () => {
-      secretsManager.prototype.send.mockImplementation(() => Promise.reject(new Error('resource not found')));
+      ssmClient.prototype.send.mockImplementation(() => Promise.reject(new Error('resource not found')));
 
       await expect(getFeedlyAuth()).rejects.toThrowError(/resource/);
     });

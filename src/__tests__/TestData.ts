@@ -105,6 +105,3 @@ export const NO_ARTICLE_IDS = [];
  */
 export const USER = 'user123';
 export const TOKEN = 'token123';
-export const SECRET_MANAGER_RESPONSE = {
-  SecretString: JSON.stringify({ user: USER, token: TOKEN }),
-};

@@ -1,6 +1,6 @@
 import { FeedlyAuth } from './models/FeedlyAuth';
-import { GetSecretValueCommand, GetSecretValueCommandOutput, SecretsManagerClient } from '@aws-sdk/client-secrets-manager';
 import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
+import { GetParameterCommand, GetParameterCommandOutput, SSMClient } from '@aws-sdk/client-ssm';
 import { logger } from './LoggingUtils';
 
 const log = logger(__filename);
@@ -9,14 +9,21 @@ const log = logger(__filename);
  * Returns feedly data for authentication from AWS Secrets Manager
  */
 export const getFeedlyAuth = async (): Promise<FeedlyAuth> => {
-  const secretsManager = new SecretsManagerClient({});
-  const command = new GetSecretValueCommand({
-    SecretId: process.env.FEEDLY_AUTH_SECRET_NAME ?? '',
-  });
-  const secretResponse = (await secretsManager.send(command)) as GetSecretValueCommandOutput;
-  const feedlyAuthJson = JSON.parse(secretResponse.SecretString ?? '{}');
+  const ssmClient = new SSMClient({});
+  const tokenResponse = (await ssmClient.send(
+    new GetParameterCommand({
+      Name: process.env.FEEDLY_TOKEN_PARAM_NAME ?? '',
+      WithDecryption: true,
+    })
+  )) as GetParameterCommandOutput;
+  const userResponse = (await ssmClient.send(
+    new GetParameterCommand({
+      Name: process.env.FEEDLY_USER_PARAM_NAME ?? '',
+      WithDecryption: true,
+    })
+  )) as GetParameterCommandOutput;
 
-  return new FeedlyAuth(feedlyAuthJson['token'], feedlyAuthJson['user']);
+  return new FeedlyAuth(tokenResponse.Parameter?.Value, userResponse.Parameter?.Value);
 };
 
 /**

@@ -11,10 +11,10 @@
     "test": "jest --config jest.config.js --cache false"
   },
   "dependencies": {
-    "axios": "^0.27.2",
-    "@aws-sdk/client-secrets-manager": "^3.171.0",
-    "@aws-sdk/client-sns": "^3.171.0",
-    "winston": "^3.8.2"
+    "@aws-sdk/client-sns": "^3.481.0",
+    "@aws-sdk/client-ssm": "^3.481.0",
+    "axios": "^1.6.3",
+    "winston": "^3.11.0"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.104",

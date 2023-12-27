@@ -1,5 +1,5 @@
 export class FeedlyAuth {
-  constructor(readonly token: string, readonly user: string) {
+  constructor(readonly token?: string, readonly user?: string) {
     if (!token) {
       throw new Error(`Feedly token is not defined`);
     }
