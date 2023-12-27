@@ -36,7 +36,8 @@ Feedly-deduplicator can be deployed to an AWS as AWS Lambda scheduled via CloudW
 * `sam deploy --parameter-overrides <parameter key>=<parameter value>` deploys and creates new CF stack (use `--guided` switch when deploying the first time)
 * Parameters:
   * (mandatory) `NotificationEmail` - email for notifications about errors 
-  * (optional) `FeedlyAuthSecretStringName` - name of the secret string holding feedly auth data. Default: `FeedlyAuth`
+  * (optional) `FeedlyTokenParamName` - name of the ssm parameter holding feedly token. Default: `/feedly/token`
+  * (optional) `FeedlyUserParamName` - name of the ssm parameter holding feedly user. Default: `/feedly/user`
   * (optional) `FeedlyCheckRuleName` - name of the event rule for periodically triggering the de-duplicator. Default: `feedly-check`
   * (optional) `FeedlyCheckRuleSchedule` - the schedule of de-duplicator. Default: `cron(0 4/2 * * ? *)` (every 2 hours starting at 4am UTC)
     * watch out! there are spaces in cron schedule and you may need to escape them. Also in such case you may use cloudformation format for parameter overrides E.g. `--parameter-overrides ParameterKey=FeedlyCheckRuleSchedule,ParameterValue="cron(0\ 4/2\ *\ *\ ?\ *)"`
@@ -44,7 +45,7 @@ Feedly-deduplicator can be deployed to an AWS as AWS Lambda scheduled via CloudW
   * (optional) `NotificationSnsTopicName` - name of the notifications SNS topic. Default: `feedly-deduplicator-notifications`
 
 ### Run Lambda function locally
-* set necessary environment variables (`NOTIFICATION_TOPIC_ARN`, `FEEDLY_AUTH_SECRET_NAME`)
+* set necessary environment variables (`NOTIFICATION_TOPIC_ARN`, `FEEDLY_TOKEN_PARAM_NAME`, `FEEDLY_USER_PARAM_NAME`)
 * `npm run dist` compiles .ts and copies everything necessary to dist folder
 * `sam build` prepares the package
 * `sam local invoke -e events/event.json` invokes function configured in [`template.yaml`](template.yaml) using [event file](events/event.json). This requires docker service to be running. 
