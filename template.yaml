@@ -8,11 +8,11 @@ Description: >
 Parameters:
   FeedlyTokenParamName:
     Type: String
-    Default: 'feedly/token'
+    Default: '/feedly/token'
     Description: Name of the ssm parameter holding feedly token
   FeedlyUserParamName:
     Type: String
-    Default: 'feedly/user'
+    Default: '/feedly/user'
     Description: Name of the ssm parameter holding feedly user
   FeedlyCheckRuleName:
     Type: String
