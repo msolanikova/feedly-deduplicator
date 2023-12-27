@@ -76,8 +76,8 @@ Resources:
                 - ssm:GetParameters
                 - ssm:GetParameter
               Resource:
-                - !Ref FeedlyToken
-                - !Ref FeedlyUser
+                - arn:aws:ssm:${Region}:${Account}:parameter/${FeedlyTokenParamName}
+                - arn:aws:ssm:${Region}:${Account}:parameter/${FeedlyUserParamName}
             - Effect: Allow
               Action:
                 - sns:Publish
