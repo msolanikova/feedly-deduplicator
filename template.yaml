@@ -59,7 +59,7 @@ Resources:
       FunctionName: feedly-deduplicator
       CodeUri: dist/
       Handler: LambdaHandler.lambdaHandler
-      Runtime: nodejs18.x
+      Runtime: nodejs22.x
       MemorySize: 128
       Timeout: 60
       Environment:

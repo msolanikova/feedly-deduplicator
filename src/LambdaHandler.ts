@@ -3,7 +3,7 @@ import { FeedlyResponse } from './models/FeedlyResponse';
 import { getFeedlyAuth } from './AwsService';
 import { logger } from './LoggingUtils';
 
-const REQUEST_LIMIT = process.env.FEEDLY_REQUEST_LIMIT ?? 15;
+const REQUEST_LIMIT = process.env.FEEDLY_REQUEST_LIMIT ? Number(process.env.FEEDLY_REQUEST_LIMIT) : 15;
 const log = logger(__filename);
 
 export const lambdaHandler = async (): Promise<void> => {
