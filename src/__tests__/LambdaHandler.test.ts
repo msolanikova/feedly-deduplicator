@@ -26,7 +26,7 @@ describe('LambdaHandler', () => {
 
       await lambdaHandler();
 
-      expect(feedlyServiceMock.prototype.markArticlesAsRead).toBeCalledTimes(1);
+      expect(feedlyServiceMock.prototype.markArticlesAsRead).toHaveBeenCalledTimes(1);
       expect(feedlyServiceMock.prototype.markArticlesAsRead.mock.calls[0][0]).toHaveLength(2);
       expect(feedlyServiceMock.prototype.markArticlesAsRead.mock.calls[0][0]).toContain('duplicatedId1');
       expect(feedlyServiceMock.prototype.markArticlesAsRead.mock.calls[0][0]).toContain('duplicatedId2');
@@ -46,8 +46,8 @@ describe('LambdaHandler', () => {
 
       await lambdaHandler();
 
-      expect(feedlyServiceMock.prototype.getUnreadArticles).toBeCalledTimes(2);
-      expect(feedlyServiceMock.prototype.markArticlesAsRead).toBeCalledTimes(1);
+      expect(feedlyServiceMock.prototype.getUnreadArticles).toHaveBeenCalledTimes(2);
+      expect(feedlyServiceMock.prototype.markArticlesAsRead).toHaveBeenCalledTimes(1);
       expect(feedlyServiceMock.prototype.markArticlesAsRead.mock.calls[0][0]).toHaveLength(3);
       expect(feedlyServiceMock.prototype.markArticlesAsRead.mock.calls[0][0]).toContain('duplicatedId1');
       expect(feedlyServiceMock.prototype.markArticlesAsRead.mock.calls[0][0]).toContain('duplicatedId2');
@@ -62,7 +62,7 @@ describe('LambdaHandler', () => {
 
       await lambdaHandler();
 
-      expect(feedlyServiceMock.prototype.getUnreadArticles).toBeCalledTimes(15);
+      expect(feedlyServiceMock.prototype.getUnreadArticles).toHaveBeenCalledTimes(15);
     });
   });
 });

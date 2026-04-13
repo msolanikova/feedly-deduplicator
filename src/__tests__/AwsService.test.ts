@@ -27,7 +27,7 @@ describe('AwsService', () => {
     it('should throw error if secret value is not found', async () => {
       ssmClient.prototype.send.mockImplementation(() => Promise.reject(new Error('resource not found')));
 
-      await expect(getFeedlyAuth()).rejects.toThrowError(/resource/);
+      await expect(getFeedlyAuth()).rejects.toThrow(/resource/);
     });
   });
 
@@ -37,13 +37,13 @@ describe('AwsService', () => {
 
       await sendTokenExpirationMessage('token expiration error');
 
-      expect(sns.prototype.send).toBeCalledTimes(1);
+      expect(sns.prototype.send).toHaveBeenCalledTimes(1);
     });
 
     it('should send throw error if sns throws error', async () => {
       sns.prototype.send.mockImplementation(() => Promise.reject(new Error('')));
 
-      await expect(sendTokenExpirationMessage('token expiration error')).rejects.toThrowError();
+      await expect(sendTokenExpirationMessage('token expiration error')).rejects.toThrow();
     });
   });
 
@@ -53,13 +53,13 @@ describe('AwsService', () => {
 
       await sendLimitReachedMessage('limit reached error');
 
-      expect(sns.prototype.send).toBeCalledTimes(1);
+      expect(sns.prototype.send).toHaveBeenCalledTimes(1);
     });
 
     it('should send throw error if sns throws error', async () => {
       sns.prototype.send.mockImplementation(() => Promise.reject(new Error('')));
 
-      await expect(sendLimitReachedMessage('limit reached error')).rejects.toThrowError();
+      await expect(sendLimitReachedMessage('limit reached error')).rejects.toThrow();
     });
   });
 
@@ -69,13 +69,13 @@ describe('AwsService', () => {
 
       await sendGenericErrorMessage('generic error');
 
-      expect(sns.prototype.send).toBeCalledTimes(1);
+      expect(sns.prototype.send).toHaveBeenCalledTimes(1);
     });
 
     it('should send throw error if sns throws error', async () => {
       sns.prototype.send.mockImplementation(() => Promise.reject(new Error('')));
 
-      await expect(sendGenericErrorMessage('limit reached error')).rejects.toThrowError();
+      await expect(sendGenericErrorMessage('limit reached error')).rejects.toThrow();
     });
   });
 });
