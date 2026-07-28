@@ -13,7 +13,7 @@
   "dependencies": {
     "@aws-sdk/client-sns": "3.1029.0",
     "@aws-sdk/client-ssm": "3.1029.0",
-    "axios": "1.16.0",
+    "axios": "1.18.1",
     "winston": "3.19.0"
   },
   "devDependencies": {
